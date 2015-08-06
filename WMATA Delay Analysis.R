@@ -2,36 +2,38 @@ library(stringr)
 library(plyr)
 library (dplyr)
 library(data.table)
+library(lubridate)
 ### Read in Data ###
 ### Read in Data ###
 ### Read in Data ###
+classes = c(
+  "character",   
+  "character",   
+  "character",  
+  "character",   
+  "character",   
+  "character",  
+  "integer")    
 wmataRaw<-read.csv('/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/disruptions,6-24.csv',na.strings=c("", "NA"),
-                   strip.white=TRUE)[c(1:2,4,7)] 
-str(wmataRaw)
-### Check completeness of data ###
-### Check completeness of data ###
-### Check completeness of data ###
+                   strip.white=TRUE, colClasses = classes)[c(1:2,4,7)] 
 
+#Date variables
+wmataRaw$Date<- as.Date(wmataRaw$Date, "%m/%d/%Y")
+wmataRaw$Year.Month <- format(wmataRaw$Date, '%Y-%m')
+wmataRaw$Year<-year(wmataRaw$Date)
 
-### Standardize Dates ###
-### Standardize Dates ###
-### Standardize Dates ###
-wmataRaw$chardate<-as.character(wmataRaw$Date)
-temp  <- strsplit(wmataRaw$chardate, "/")
-tempdate<-as.data.frame(matrix(unlist(temp), ncol=3, byrow=TRUE))
-colnames(tempdate)<-c('month','day','year')
-
-tempdate$fullmonth<-ifelse(!tempdate$month %in% c('10','11','12'),
-                paste('0',tempdate$month, sep=''), tempdate$month)
-
-tempdate$month<-ifelse(substr(tempdate$month,1,1) %in% c('0','1'),
-                       tempdate$month,paste('0',tempdate$month, sep=''))
-wmata<-cbind(wmataRaw,tempdate)
-wmata$ym<-paste(wmata$year,wmata$month)
+#Time variables
+temp<-strsplit(wmataRaw$Time, ":")
+temptime<-as.data.frame(matrix(unlist(temp), ncol=2, byrow=TRUE,))
+temptime$ap <- strsplit(V1, ":")
+V1<-as.character(temptime$V2)
 
 ### Explore delays by date, time and delays ###
 ### Explore delays by date, time and delays ###
 ### Explore delays by date, time and delays ###
-delaySum<-ddply(wmata, c("ym"), nrow)
-plot(delaySum$ym, delaySum$V1)
-delaySum<-ddply(wmata, c("year"), nrow)
+delaySum<-ddply(wmataRaw, c("Year.Month"),nrow)
+lineSum<-ddply(wmataRaw,c("Line", "Year"),nrow)
+
+delayAvg<-ddply(wmataRaw),c("Year.Month"),
+plot(delaySum$Year.Month, delaySum$V1)
+delaySum<-ddply(wmataRaw, c("year"), nrow)

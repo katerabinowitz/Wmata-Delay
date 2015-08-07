@@ -103,7 +103,7 @@ wmata$HourN<- ifelse(wmata$Hour=='1 a.m.',1,
 DateTimeDelay<-ddply(wmata, c("Day","HourN"),nrow,.drop=FALSE)
 DateTimeDelay$Day<-as.numeric(DateTimeDelay$Day)
 DateTimeDelay$HourN<-as.numeric(DateTimeDelay$HourN)
-
+rownames(DateTimeDelay) <- NULL
 DateTimeDelay<-DateTimeDelay[order(DateTimeDelay$Day,DateTimeDelay$HourN), ]
 
 write.csv(DateTimeDelay, 

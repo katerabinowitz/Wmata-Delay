@@ -24,7 +24,7 @@ wmataRaw$YM <- format(wmataRaw$Date, '%Y-%m')
 wmataRaw$Year<-year(wmataRaw$Date)
 wmataRaw$Month<-month(wmataRaw$Date)
 
-wmataH1 <- wmataRaw[which(wmataRaw$Month<7 & wmataRaw$Year>2012),] 
+wmataH1 <- wmataRaw[which(wmataRaw$Month<7 | wmataRaw$Year>2012),] 
 wmataH1$H1Year<-ifelse(wmataH1$Year=='2013','First Half 2013',
                         ifelse(wmataH1$Year=='2014','First Half 2014',
                           ifelse(wmataH1$Year=='2015','First Half 2015','')))
@@ -37,7 +37,7 @@ colnames(YMdelaySum)<-c("YM","DelayCountYM")
 H1delaySum<-ddply(wmataH1, c("H1Year"),nrow)
 colnames(H1delaySum)<-c("H1","DelayCountH1")
 
-YMDelay <- YMdelaySum[-c(1,2), ]
+
 write.csv(YMDelay, 
           file="/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/YM-Delays.csv")
 write.csv(H1delaySum, 
@@ -74,7 +74,8 @@ wmata$Hour  <- factor(wmata$Hour,
                             '8 a.m.', '9 a.m.', '10 a.m.', '11 a.m.', '12 p.m.', '1 p.m.', '2 p.m.', '3 p.m.',
                             '4 p.m.', '5 p.m.', '6 p.m.', '7 p.m.', '8 p.m.', '9 p.m.', '10 p.m.', '11 p.m.'))
 #Sum
-DateTimeDelay<-ddply(wmata, c("Weekday","Hour"),nrow)
+DateTimeDelay<-ddply(wmata, c("Weekday","Hour"),nrow,.drop=FALSE)
+
 write.csv(DateTimeDelay, 
           file="/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/DT-Delays.csv")
 

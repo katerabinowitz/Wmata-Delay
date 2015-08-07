@@ -57,6 +57,13 @@ wmataDT<- wmataRaw[which(!is.na(wmataRaw$Time)),]
 wmataDT$Weekday  <- as.factor(weekdays(wmataDT$Date))
 wmataDT$Weekday  <- factor(wmataDT$Weekday,  levels	=	c("Sunday","Monday",	"Tuesday",	"Wednesday",	
                                                           "Thursday",	"Friday",	"Saturday"))
+wmataDT$Day<-ifelse(wmataDT$Weekday=="Sunday",1,
+                ifelse(wmataDT$Weekday=="Monday",2,
+                  ifelse(wmataDT$Weekday=="Tuesday",3,
+                    ifelse(wmataDT$Weekday=="Wednesday",4,
+                      ifelse(wmataDT$Weekday=="Thursday",5,
+                        ifelse(wmataDT$Weekday=="Friday",6,
+                            ifelse(wmataDT$Weekday=="Saturday",7,'')))))))
 #Time variables
 hour<-strsplit(wmataDT$Time, ":")
 ampm<-strsplit(wmataDT$Time, " ")
@@ -68,13 +75,36 @@ colnames(ampm)<-c("Time","AMPM")
 wmata<-cbind(wmataDT,hour,ampm)
 wmata$Hour<-tolower(paste(wmata$Hr,wmata$AMPM))
 wmata$Hour<-ifelse(substring(wmata$Hour, 1, 1)=='0',gsub('0','',wmata$Hour),wmata$Hour)
-wmata$Hour<-as.factor(wmata$Hour)
-wmata$Hour  <- factor(wmata$Hour,  
-                levels  =	c('12 a.m.', '1 a.m.', '2 a.m.', '3 a.m.', '4 a.m.', '5 a.m.', '6 a.m.', '7 a.m.',
-                            '8 a.m.', '9 a.m.', '10 a.m.', '11 a.m.', '12 p.m.', '1 p.m.', '2 p.m.', '3 p.m.',
-                            '4 p.m.', '5 p.m.', '6 p.m.', '7 p.m.', '8 p.m.', '9 p.m.', '10 p.m.', '11 p.m.'))
+wmata$HourN<- ifelse(wmata$Hour=='1 a.m.',1,
+              ifelse(wmata$Hour=='2 a.m.',2,
+              ifelse(wmata$Hour=='3 a.m.',3,
+                  ifelse(wmata$Hour=='4 a.m.',4, 
+                  ifelse(wmata$Hour=='5 a.m.',5,
+                  ifelse(wmata$Hour=='6 a.m.',6,
+                    ifelse(wmata$Hour=='7 a.m.',7,
+                    ifelse(wmata$Hour=='8 a.m.',8,
+                    ifelse(wmata$Hour=='9 a.m.',9,
+                      ifelse(wmata$Hour=='10 a.m.',10,
+                      ifelse(wmata$Hour=='11 a.m.',11,
+                      ifelse(wmata$Hour=='12 p.m.',12,
+                          ifelse(wmata$Hour=='1 p.m.',13,
+                          ifelse(wmata$Hour=='2 p.m.',14,
+                          ifelse(wmata$Hour=='3 p.m.',15,
+                            ifelse(wmata$Hour=='4 p.m.',16,
+                            ifelse(wmata$Hour=='5 p.m.',17,
+                            ifelse(wmata$Hour=='6 p.m.',18,
+                              ifelse(wmata$Hour=='7 p.m.',19,
+                              ifelse(wmata$Hour=='8 p.m.',20,
+                              ifelse(wmata$Hour=='9 p.m.',21,
+                                    ifelse(wmata$Hour=='10 p.m.',22, 
+                                    ifelse(wmata$Hour=='11 p.m.',23,
+                                    ifelse(wmata$Hour=='12 a.m.',24,''))))))))))))))))))))))))
 #Sum
-DateTimeDelay<-ddply(wmata, c("Weekday","Hour"),nrow,.drop=FALSE)
+DateTimeDelay<-ddply(wmata, c("Day","HourN"),nrow,.drop=FALSE)
+DateTimeDelay$Day<-as.numeric(DateTimeDelay$Day)
+DateTimeDelay$HourN<-as.numeric(DateTimeDelay$HourN)
+
+DateTimeDelay<-DateTimeDelay[order(DateTimeDelay$Day,DateTimeDelay$HourN), ]
 
 write.csv(DateTimeDelay, 
           file="/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/DT-Delays.csv")

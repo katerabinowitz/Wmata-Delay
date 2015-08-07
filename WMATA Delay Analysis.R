@@ -107,7 +107,7 @@ rownames(DateTimeDelay) <- NULL
 DateTimeDelay<-DateTimeDelay[order(DateTimeDelay$Day,DateTimeDelay$HourN), ]
 
 write.csv(DateTimeDelay, 
-          file="/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/DT-Delays.csv")
+          file="/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/DT-Delays.csv",row.names=FALSE)
 
 ###Commuting Hours###
 ###Commuting Hours###

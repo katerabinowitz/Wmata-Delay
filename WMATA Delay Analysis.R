@@ -35,7 +35,7 @@ wmataH1$H1Year<-ifelse(wmataH1$Year=='2013','First Half 2013',
 YMdelaySum<-ddply(wmataRaw, c("YM"),nrow)
 colnames(YMdelaySum)<-c("YM","DelayCountYM")
 H1delaySum<-ddply(wmataH1, c("H1Year"),nrow)
-colnames(H1delaySum)<-c("YM","DelayCountH1")
+colnames(H1delaySum)<-c("H1","DelayCountH1")
 
 YMDelay <- YMdelaySum[-c(1,2), ]
 write.csv(YMDelay, 

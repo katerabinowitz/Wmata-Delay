@@ -50,20 +50,15 @@ H1delayTime<-aggregate(Delay ~ Year, wmataH1, mean)
 YMLine<-ddply(wmataRaw, c("Line"),nrow)
 H1Line<-ddply(wmataH1,c("Line", "Year"),nrow)
 
+#Total Delay in 2015H1
+wmataD<- wmataRaw[which(!is.na(wmataRaw$Delay)),]
+sum(wmataD$Delay)
+
 ###Weekday and time for accidents###
 ###Weekday and time for accidents###
 ###Weekday and time for accidents###
 wmataDT<- wmataRaw[which(!is.na(wmataRaw$Time)),] 
-wmataDT$Weekday  <- as.factor(weekdays(wmataDT$Date))
-wmataDT$Weekday  <- factor(wmataDT$Weekday,  levels	=	c("Sunday","Monday",	"Tuesday",	"Wednesday",	
-                                                          "Thursday",	"Friday",	"Saturday"))
-wmataDT$Day<-ifelse(wmataDT$Weekday=="Sunday",1,
-                ifelse(wmataDT$Weekday=="Monday",2,
-                  ifelse(wmataDT$Weekday=="Tuesday",3,
-                    ifelse(wmataDT$Weekday=="Wednesday",4,
-                      ifelse(wmataDT$Weekday=="Thursday",5,
-                        ifelse(wmataDT$Weekday=="Friday",6,
-                            ifelse(wmataDT$Weekday=="Saturday",7,'')))))))
+
 #Time variables
 hour<-strsplit(wmataDT$Time, ":")
 ampm<-strsplit(wmataDT$Time, " ")
@@ -78,35 +73,48 @@ wmata$Hour<-ifelse(substring(wmata$Hour, 1, 1)=='0',gsub('0','',wmata$Hour),wmat
 wmata$HourN<- ifelse(wmata$Hour=='1 a.m.',1,
               ifelse(wmata$Hour=='2 a.m.',2,
               ifelse(wmata$Hour=='3 a.m.',3,
-                  ifelse(wmata$Hour=='4 a.m.',4, 
-                  ifelse(wmata$Hour=='5 a.m.',5,
-                  ifelse(wmata$Hour=='6 a.m.',6,
-                    ifelse(wmata$Hour=='7 a.m.',7,
-                    ifelse(wmata$Hour=='8 a.m.',8,
-                    ifelse(wmata$Hour=='9 a.m.',9,
-                      ifelse(wmata$Hour=='10 a.m.',10,
-                      ifelse(wmata$Hour=='11 a.m.',11,
-                      ifelse(wmata$Hour=='12 p.m.',12,
-                          ifelse(wmata$Hour=='1 p.m.',13,
-                          ifelse(wmata$Hour=='2 p.m.',14,
-                          ifelse(wmata$Hour=='3 p.m.',15,
-                            ifelse(wmata$Hour=='4 p.m.',16,
-                            ifelse(wmata$Hour=='5 p.m.',17,
-                            ifelse(wmata$Hour=='6 p.m.',18,
-                              ifelse(wmata$Hour=='7 p.m.',19,
-                              ifelse(wmata$Hour=='8 p.m.',20,
+                ifelse(wmata$Hour=='4 a.m.',4, 
+                ifelse(wmata$Hour=='5 a.m.',5,
+                ifelse(wmata$Hour=='6 a.m.',6,
+                  ifelse(wmata$Hour=='7 a.m.',7,
+                  ifelse(wmata$Hour=='8 a.m.',8,
+                  ifelse(wmata$Hour=='9 a.m.',9,
+                    ifelse(wmata$Hour=='10 a.m.',10,
+                    ifelse(wmata$Hour=='11 a.m.',11,
+                    ifelse(wmata$Hour=='12 p.m.',12,
+                      ifelse(wmata$Hour=='1 p.m.',13,
+                      ifelse(wmata$Hour=='2 p.m.',14,
+                      ifelse(wmata$Hour=='3 p.m.',15,
+                      ifelse(wmata$Hour=='4 p.m.',16,
+                        ifelse(wmata$Hour=='5 p.m.',17,
+                        ifelse(wmata$Hour=='6 p.m.',18,
+                        ifelse(wmata$Hour=='7 p.m.',19,
+                             ifelse(wmata$Hour=='8 p.m.',20,
                               ifelse(wmata$Hour=='9 p.m.',21,
-                                    ifelse(wmata$Hour=='10 p.m.',22, 
+                              ifelse(wmata$Hour=='10 p.m.',22, 
                                     ifelse(wmata$Hour=='11 p.m.',23,
                                     ifelse(wmata$Hour=='12 a.m.',24,''))))))))))))))))))))))))
-#Sum
-DateTimeDelay<-ddply(wmata, c("Day","HourN"),nrow,.drop=FALSE)
-DateTimeDelay$Day<-as.numeric(DateTimeDelay$Day)
-DateTimeDelay$HourN<-as.numeric(DateTimeDelay$HourN)
-rownames(DateTimeDelay) <- NULL
-DateTimeDelay<-DateTimeDelay[order(DateTimeDelay$Day,DateTimeDelay$HourN), ]
+wmata2015<-wmata[which(wmata$Year>2014),] 
 
-write.csv(DateTimeDelay, 
+DelayCount<-ddply(wmata2015, c("Date","HourN"),nrow, .drop=FALSE)
+
+DelayCount$Weekday  <- as.factor(weekdays(DelayCount$Date))
+DelayCount$Weekday  <- factor(DelayCount$Weekday,  levels	=	c("Sunday","Monday",	"Tuesday",	"Wednesday",	
+                                                          "Thursday",	"Friday",	"Saturday"))
+DelayCount$Day<-ifelse(DelayCount$Weekday=="Sunday",1,
+                ifelse(DelayCount$Weekday=="Monday",2,
+                  ifelse(DelayCount$Weekday=="Tuesday",3,
+                    ifelse(DelayCount$Weekday=="Wednesday",4,
+                      ifelse(DelayCount$Weekday=="Thursday",5,
+                        ifelse(DelayCount$Weekday=="Friday",6,
+                            ifelse(DelayCount$Weekday=="Saturday",7,'')))))))
+#Sum
+DelayCountM<-as.matrix(DelayCount)
+AvgDelay<-aggregate(V1 ~ Day + HourN, DelayCount, mean)
+
+AvgDelay<-AvgDelay[order(AvgDelay$Day,AvgDelay$HourN), ]
+
+write.csv(AvgDelay, 
           file="/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/DT-Delays.csv",row.names=FALSE)
 
 ###Commuting Hours###

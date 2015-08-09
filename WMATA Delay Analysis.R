@@ -19,12 +19,13 @@ wmataRaw<-read.csv('/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/disru
 
 #Date variables
 wmataRaw$Date<- as.Date(wmataRaw$Date, "%m/%d/%Y")
-wmataRaw$YM <- format(wmataRaw$Date, '%Y-%m')
+wmataRaw$YM <- format(wmataRaw$Date, '%m-%y')
 
 wmataRaw$Year<-year(wmataRaw$Date)
 wmataRaw$Month<-month(wmataRaw$Date)
 
-wmataH1 <- wmataRaw[which(wmataRaw$Month<7 & wmataRaw$Year>2012),] 
+wmataRaw <- wmataRaw[which(wmataRaw$Year>2012),] 
+wmataH1<- wmataRaw[which(wmataRaw$Month<7),] 
 wmataH1$H1Year<-ifelse(wmataH1$Year=='2013','First Half 2013',
                         ifelse(wmataH1$Year=='2014','First Half 2014',
                           ifelse(wmataH1$Year=='2015','First Half 2015','')))
@@ -34,10 +35,17 @@ wmataH1$H1Year<-ifelse(wmataH1$Year=='2013','First Half 2013',
 ###Aggregate by H1 and yearmonth for trend###
 YMdelaySum<-ddply(wmataRaw, c("YM"),nrow)
 colnames(YMdelaySum)<-c("YM","DelayCountYM")
+
+to.merge<-wmataRaw[c('YM','Year','Month')]
+YMD<-merge(x=YMdelaySum, y = to.merge, by = "YM")
+YMdelaySum<-unique(YMD[duplicated(YMD),])
+YMdelaySum<-YMdelaySum[order(YMdelaySum$Year,YMdelaySum$Month), ]
+YMdelaySum<-YMdelaySum[c("YM","DelayCountYM")]
+
 H1delaySum<-ddply(wmataH1, c("H1Year"),nrow)
 colnames(H1delaySum)<-c("H1","DelayCountH1")
 
-write.csv(YMDelay, 
+write.csv(YMdelaySum, 
           file="/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/YM-Delays.csv")
 write.csv(H1delaySum, 
           file="/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/H1-Delays.csv")
@@ -47,6 +55,7 @@ H1delayTime<-aggregate(Delay ~ Year, wmataH1, mean)
 
 #Total Delay in 2015H1
 wmataD<- wmataRaw[which(!is.na(wmataRaw$Delay)),]
+wmataD<- wmataD[which(wmataD$Year==2015),]
 sum(wmataD$Delay)
 
 ###Weekday and time for accidents###
@@ -120,6 +129,7 @@ AvgDelay<-aggregate(V1 ~ Day + HourN, Delayweekday, mean)
 AvgDelay$HourN<-as.numeric(AvgDelay$HourN)
 AvgDelay$Day<-as.numeric(AvgDelay$Day)
 AvgDelay<-AvgDelay[order(AvgDelay$Day,AvgDelay$HourN), ]
+AvgDelay5+<-AvgDelay[which(wmata$Year>2014),] 
 
 write.csv(AvgDelay, 
           file="/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/DT-Delays.csv",row.names=FALSE)

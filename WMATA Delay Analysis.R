@@ -19,7 +19,7 @@ wmataRaw<-read.csv('/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/disru
 
 #Date variables
 wmataRaw$Date<- as.Date(wmataRaw$Date, "%m/%d/%Y")
-wmataRaw$YM <- format(wmataRaw$Date, '%m-%y')
+wmataRaw$YM <- format(wmataRaw$Date, '%m/%y')
 
 wmataRaw$Year<-year(wmataRaw$Date)
 wmataRaw$Month<-month(wmataRaw$Date)
@@ -41,6 +41,7 @@ YMD<-merge(x=YMdelaySum, y = to.merge, by = "YM")
 YMdelaySum<-unique(YMD[duplicated(YMD),])
 YMdelaySum<-YMdelaySum[order(YMdelaySum$Year,YMdelaySum$Month), ]
 YMdelaySum<-YMdelaySum[c("YM","DelayCountYM")]
+YMdelaySum$YM<-ifelse(substring(YMdelaySum$YM, 1, 1)=='0',gsub('0','',YMdelaySum$YM),YMdelaySum$YM)
 
 H1delaySum<-ddply(wmataH1, c("H1Year"),nrow)
 colnames(H1delaySum)<-c("H1","DelayCountH1")

@@ -7,24 +7,25 @@ response = requests.get('http://www.wmata.com/rail/service_reports/viewReportArc
 soup = Soup(response.content)
 
 wmata = soup.find("ul", {"class": "links2"})
-category_links = ["http://www.wmata.com/rail/service_reports/" + li.a["href"] for li in wmata.findAll("li")]
+date_links = ["http://www.wmata.com/rail/service_reports/" + li.a["href"] for li in wmata.findAll("li")]
 
 Incidents=[]
 Incident=[]
 Date=[]
 DateN=[]
-links=category_links[1:5]
-d=[]
+d=pd.DataFrame()
 
-for link in links:
+for link in date_links:
 	result = requests.get(link)
 	c = result.content
 	soup = Soup(c)
-	Incident.append(soup.find("div", {"class":"internal-box2-inner"}).findAll('p'))
+	Incident=soup.find("div", {"class":"internal-box2-inner"}).findAll('p')
 	for element in Incident:
- 		Incidents.append(element.get_text())
-	Date.append(soup.find("h1").get_text())
-	length=len(Incidents)
+ 		Incidents.append(element.get_text().encode('utf8'))
+	Date=soup.find("h1").get_text().encode('utf8')
+	length=len(Incident)
+	DateN=Date*length
+	data=pd.DataFrame({'Date':DateN, 'Incident':Incidents})
+	d=d.append(data)
 
-DF=pd.DataFrame({'Date':DateN, 'Incident':Incidents})
-print DF
+d.to_csv('WMATAService.csv')

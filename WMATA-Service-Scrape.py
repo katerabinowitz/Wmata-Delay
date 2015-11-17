@@ -9,13 +9,15 @@ soup = Soup(response.content)
 wmata = soup.find("ul", {"class": "links2"})
 date_links = ["http://www.wmata.com/rail/service_reports/" + li.a["href"] for li in wmata.findAll("li")]
 
+year_links=date_links[:365]
+
 Incidents=[]
 Incident=[]
 Date=[]
 DateN=[]
 d=pd.DataFrame()
 
-for link in date_links:
+for link in year_links:
 	result = requests.get(link)
 	c = result.content
 	soup = Soup(c)

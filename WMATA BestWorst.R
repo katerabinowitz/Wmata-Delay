@@ -1,4 +1,5 @@
 library(stringr)
+library(plyr)
 Delays<-read.csv("/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/WMATAService.csv", 
                  stringsAsFactors=FALSE, strip.white=TRUE)
 
@@ -13,6 +14,7 @@ DelayV2<-cbind(Delays,Date)
 
 DelayV2<-subset(DelayV2,DelayV2$Incident!="Wednesday November 18, 2014    ")
 DelayV2$DayType<-ifelse(DelayV2$Day %in% c("Saturday","Sunday"), "Weekend","Weekday")
+DelayV2$Month<-gsub( " .*$", "", DelayV2$MD)
 
 DelayV2$Time<-substr(DelayV2$Incident,1,10)
 DelayV2$Hour<-ifelse(DelayV2$Time=="\n5 57 p.m.",5,
@@ -22,15 +24,41 @@ DelayV2$Hour<-ifelse(DelayV2$Time=="\n5 57 p.m.",5,
 DelayV2$Hour24<-ifelse((grepl("p",DelayV2$Time) & DelayV2$Hour==12),DelayV2$Hour,
                         ifelse(grepl("p",DelayV2$Time),DelayV2$Hour+12,DelayV2$Hour))
 
-DelayV2$TimeGroup<-ifelse(DelayV2$DayType=="Weekday" & DelayV2$Hour24 %in% c(7,8,9),"Rush",
-                          ifelse(DelayV2$DayType=="Weekday" & DelayV2$Hour24 %in% c(17,18,19),"Rush",
+DelayV2$TimeGroup<-ifelse(DelayV2$DayType=="Weekday" & DelayV2$Hour24 %in% c(6,7,8,9),"Rush",
+                          ifelse(DelayV2$DayType=="Weekday" & DelayV2$Hour24 %in% c(16,17,18,19),"Rush",
                                   "Off Rush"))
 DelayV2<-DelayV2[c(3,5:9,11:12)]
 
+### Incident Type ###
+DelayV2$Suspend<-ifelse(grepl("suspend",DelayV2$Incident),1,
+                        ifelse(grepl("Suspend",DelayV2$Incident),1,0))
+DelayV2$Closed<-ifelse(grepl("close",DelayV2$Incident),1,
+                       ifelse(grepl("Close",DelayV2$Incident),1,0))
+DelayV2$Offload<-ifelse(grepl("offload",DelayV2$Incident),1,
+                        ifelse(grepl("Offload",DelayV2$Incident),1,0))
+DelayV2$Shuttle<-ifelse(grepl("Shuttle",DelayV2$Incident),1,
+                        ifelse(grepl("shuttle",DelayV2$Incident),1,0))
+
 ###Delay Time###
-DelayV2$ShortInc<-gsub(".*\\.m.","",DelayV2$Incident)
+DelayV2$ShortInc<-substr(DelayV2$Incident,11,1000)
+DelayV2$ShortInc<-gsub('minute.*','',DelayV2$ShortInc)
+DelayV2$ShortInc<-gsub(".*\\.m.","",DelayV2$ShortInc)
+
 DelayV2$Delay<-as.numeric(str_extract(DelayV2$ShortInc,"[[:digit:]]+"))
-Check<-subset(DelayV2,is.na(DelayV2$Delay) & !(grepl("was expressed",DelayV2$Incident)))
+
+#where no delay time reported, estimate based on type of incident
+offload<-subset(DelayV2,DelayV2$Offload==1 & !is.na(DelayV2$Delay))
+median(offload$Delay)
+suspend<-subset(DelayV2,DelayV2$Suspend==1 & !is.na(DelayV2$Delay))
+median(suspend$Delay)
+shuttle<-subset(DelayV2,DelayV2$Shuttle==1 & !is.na(DelayV2$Delay))
+median(shuttle$Delay)
+
+DelayV2$Delay<-ifelse((is.na(DelayV2$Delay)& DelayV2$Offload==1),7,
+                  ifelse((is.na(DelayV2$Delay)& DelayV2$Suspend==1),40,
+                    ifelse((is.na(DelayV2$Delay)& DelayV2$Shuttle==1),40,
+                      ifelse((is.na(DelayV2$Delay)& grepl("ignificant delay",DelayV2$Incident)),40,
+                        DelayV2$Delay))))
 
 ###Lines, Routes, and Stations###
 DelayV2$Silver<-ifelse(grepl("Silver",DelayV2$Incident),1,0)
@@ -39,13 +67,6 @@ DelayV2$Blue<-ifelse(grepl("Blue",DelayV2$Incident),1,0)
 DelayV2$Red<-ifelse(grepl("Red",DelayV2$Incident),1,0)
 DelayV2$Yellow<-ifelse(grepl("Yellow",DelayV2$Incident),1,0)
 DelayV2$Green<-ifelse(grepl("Green",DelayV2$Incident),1,0)
-
-DelayV2$Suspend<-ifelse(grepl("suspend",DelayV2$Incident),1,
-                  ifelse(grepl("Suspend",DelayV2$Incident),1,0))
-DelayV2$Closed<-ifelse(grepl("close",DelayV2$Incident),1,
-                      ifelse(grepl("Close",DelayV2$Incident),1,0))
-DelayV2$Offload<-ifelse(grepl("offload",DelayV2$Incident),1,
-                       ifelse(grepl("Offload",DelayV2$Incident),1,0))
 
 DelayV2$Bound<-ifelse(grepl("Largo Town Center-bound",DelayV2$Incident),"Largo",
               ifelse(grepl("Largo-bound",DelayV2$Incident),"Largo",
@@ -80,3 +101,32 @@ DelayV2$Bound<-ifelse(grepl("Largo Town Center-bound",DelayV2$Incident),"Largo",
                                                         ifelse(grepl("Greenbelt Ave-bound",DelayV2$Incident),"Greenbelt Avenue",
                                                           ifelse(grepl("Van Ness-bound",DelayV2$Incident),"Van Ness",
                                         "N/A"))))))))))))))))))))))))))))))))
+
+
+### Delay Stats ###
+aggregate(DelayV2$Delay, by=list(DelayV2$Bound), FUN=mean, na.rm=TRUE)
+aggregate(DelayV2$Delay, by=list(DelayV2$TimeGroup), FUN=mean, na.rm=TRUE)
+count(DelayV2$Delay, c('DelayV2$TimeGroup'))
+aggregate(DelayV2$Delay, by=list(DelayV2$DayType), FUN=mean, na.rm=TRUE)
+count(DelayV2$Delay, c('DelayV2$DayType'))
+aggregate(DelayV2$Delay, by=list(DelayV2$Day), FUN=mean, na.rm=TRUE)
+count(DelayV2$Delay, c('DelayV2$Day'))
+aggregate(DelayV2$Delay, by=list(DelayV2$Yr,DelayV2$Month), FUN=mean, na.rm=TRUE)
+count(DelayV2$Delay, c('DelayV2$Yr','DelayV2$Month'))
+
+Saturday<-subset(DelayV2,DelayV2$Day=="Saturday")
+
+DelaySums<-DelayV2[c("Silver","Red","Orange","Blue","Yellow","Green","Delay")]
+colSums(DelaySums, na.rm=TRUE)
+Silver<-subset(DelaySums,DelaySums$Silver==1 & !is.na(DelaySums$Delay))
+mean(Silver$Delay)
+Red<-subset(DelaySums,DelaySums$Red==1 & !is.na(DelaySums$Delay))
+mean(Red$Delay)
+Orange<-subset(DelaySums,DelaySums$Orange==1 & !is.na(DelaySums$Delay))
+mean(Orange$Delay)
+Blue<-subset(DelaySums,DelaySums$Blue==1 & !is.na(DelaySums$Delay))
+mean(Blue$Delay)
+Yellow<-subset(DelaySums,DelaySums$Yellow==1 & !is.na(DelaySums$Delay))
+mean(Yellow$Delay)
+Green<-subset(DelaySums,DelaySums$Green==1 & !is.na(DelaySums$Delay))
+mean(Green$Delay)

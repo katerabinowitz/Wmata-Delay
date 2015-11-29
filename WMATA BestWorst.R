@@ -23,7 +23,7 @@ Delays$Hour<-ifelse(Delays$Time=="\n5 57 p.m.",5,
                       ifelse(Delays$Time=="\n803 a.m. ",8,
                             as.numeric(gsub(":.*$","",Delays$Time)))))
 
-Delays<-subset(Delays,!is.na(Delays$Hour) & !(Delays$Month=="December"))
+Delays<-subset(Delays,!is.na(Delays$Hour) & !(Delays$Month=="December") & !(Delays$Yr=="2012"))
 
 Delays$Hour24<-ifelse((grepl("p",Delays$Time) & Delays$Hour==12),Delays$Hour,
                         ifelse(grepl("p",Delays$Time),Delays$Hour+12,Delays$Hour))
@@ -139,10 +139,6 @@ Delays$Bound<-ifelse(grepl("Largo Town Center-bound",Delays$Incident),"Largo",
 
 
 ### Delay Stats ###
-aggregate(Delays$Delay, by=list(Delays$Yr), FUN=sum, na.rm=TRUE)
-count(Delays$Delay, c('Delays$Yr'))
-aggregate(Delays$Delay, by=list(Delays$Yr,Delays$Month), FUN=sum, na.rm=TRUE)
-count(Delays$Delay, c('Delays$Month','Delays$Yr'))
 aggregate(Delays$Delay, by=list(Delays$TimeGroup), FUN=mean, na.rm=TRUE)
 count(Delays$Delay, c('Delays$TimeGroup'))
 aggregate(Delays$Delay, by=list(Delays$DayType), FUN=mean, na.rm=TRUE)
@@ -150,9 +146,18 @@ count(Delays$Delay, c('Delays$DayType'))
 aggregate(Delays$Delay, by=list(Delays$Day), FUN=mean, na.rm=TRUE)
 count(Delays$Delay, c('Delays$Day'))
 
+aggregate(Delays$Delay, by=list(Delays$Yr,Delays$Month), FUN=sum, na.rm=TRUE)
+myDelayN<-count(Delays$Delay, c('Delays$Month','Delays$Yr'))
+write.csv(myDelayN,"myDelayN.csv",row.names=FALSE)
+
+AnnualDelay<-aggregate(Delays$Delay, by=list(Delays$Yr), FUN=sum, na.rm=TRUE)
+count(Delays$Delay, c('Delays$Yr'))
+write.csv(AnnualDelay,"AnnualDelay.csv",row.names=FALSE)
+
 DelayTime<-subset(Delays,!is.na(Delays$Delay))
 count(DelayTime$Delay, c('DelayTime$Yr'))
-table(DelayTime$Issue,DelayTime$Yr)
+DelayIssue<-as.data.frame(table(DelayTime$Issue,DelayTime$Yr))
+write.csv(DelayIssue,"DelayIssue.csv",row.names=FALSE)
 
 Schedule15<-subset(DelayTime,DelayTime$Issue=="Schedule" & DelayTime$Yr=="2015")
 DelayTime$DNO<-ifelse(grepl("did not operate",DelayTime$Incident),1,0)

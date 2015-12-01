@@ -1,3 +1,4 @@
+setwd("/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay")
 library(stringr)
 library(plyr)
 DelayRaw<-read.csv("/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/WMATAService.csv", 

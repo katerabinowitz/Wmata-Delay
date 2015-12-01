@@ -153,6 +153,8 @@ write.csv(myDelayN,"myDelayN.csv",row.names=FALSE)
 
 AnnualDelay<-aggregate(Delays$Delay, by=list(Delays$Yr), FUN=sum, na.rm=TRUE)
 count(Delays$Delay, c('Delays$Yr'))
+colnames(AnnualDelay)<-c("Year","x")
+AnnualDelay$DelaySum<-AnnualDelay$x/60
 write.csv(AnnualDelay,"AnnualDelay.csv",row.names=FALSE)
 
 DelayTime<-subset(Delays,!is.na(Delays$Delay))

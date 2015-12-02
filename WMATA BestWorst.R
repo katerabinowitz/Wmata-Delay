@@ -1,6 +1,7 @@
 setwd("/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay")
 library(stringr)
 library(plyr)
+library(reshape)
 DelayRaw<-read.csv("/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/WMATAService.csv", 
                  stringsAsFactors=FALSE, strip.white=TRUE)
 
@@ -160,7 +161,10 @@ write.csv(AnnualDelay,"AnnualDelay.csv",row.names=FALSE)
 DelayTime<-subset(Delays,!is.na(Delays$Delay))
 count(DelayTime$Delay, c('DelayTime$Yr'))
 DelayIssue<-as.data.frame(table(DelayTime$Issue,DelayTime$Yr))
-write.csv(DelayIssue,"DelayIssue.csv",row.names=FALSE)
+Issue<-cast(DelayIssue,Var2~Var1)
+Issue$year<-Issue$Var2
+Issue<-Issue[c(2:10)]
+write.csv(Issue,"DelayIssue.csv",row.names=FALSE)
 
 Schedule15<-subset(DelayTime,DelayTime$Issue=="Schedule" & DelayTime$Yr=="2015")
 DelayTime$DNO<-ifelse(grepl("did not operate",DelayTime$Incident),1,0)

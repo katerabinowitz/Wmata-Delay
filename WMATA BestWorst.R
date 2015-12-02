@@ -150,7 +150,9 @@ count(Delays$Delay, c('Delays$Day'))
 
 aggregate(Delays$Delay, by=list(Delays$Yr,Delays$Month), FUN=sum, na.rm=TRUE)
 myDelayN<-count(Delays$Delay, c('Delays$Month','Delays$Yr'))
-write.csv(myDelayN,"myDelayN.csv",row.names=FALSE)
+myDelay<-cast(myDelayN,Delays.Month~Delays.Yr)[c(1,3:4)]
+colnames(myDelay)<-c("Month","Yr2014","Yr2015")
+write.csv(myDelay,"myDelayN.csv",row.names=FALSE)
 
 AnnualDelay<-aggregate(Delays$Delay, by=list(Delays$Yr), FUN=sum, na.rm=TRUE)
 count(Delays$Delay, c('Delays$Yr'))

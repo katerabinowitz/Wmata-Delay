@@ -1,5 +1,9 @@
-"External","FireCrime","Maintenance","Mechnical","NA","Operational","Schedule","Trains","year"
-0,0,0,0,0,0,0,0,"2012"
-201,214,37,2176,44,278,409,5,"2013"
-195,173,56,2312,17,439,940,8,"2014"
-75,345,99,2495,3,512,1930,9,"2015"
+"Issue","Yr2013","Yr2014","Yr2015"
+"External",201,195,75
+"FireCrime",214,173,345
+"Maintenance",37,56,99
+"Mechnical",2176,2312,2495
+"NA",44,17,3
+"Operational",278,439,512
+"Schedule",409,940,1930
+"Trains",5,8,9

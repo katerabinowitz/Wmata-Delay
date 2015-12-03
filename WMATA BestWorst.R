@@ -163,9 +163,8 @@ write.csv(AnnualDelay,"AnnualDelay.csv",row.names=FALSE)
 DelayTime<-subset(Delays,!is.na(Delays$Delay))
 count(DelayTime$Delay, c('DelayTime$Yr'))
 DelayIssue<-as.data.frame(table(DelayTime$Issue,DelayTime$Yr))
-Issue<-cast(DelayIssue,Var2~Var1)
-Issue$year<-Issue$Var2
-Issue<-Issue[c(2:10)]
+Issue<-cast(DelayIssue,Var1~Var2)[c(1,3:5)]
+colnames(Issue)<-c("Issue","Yr2013","Yr2014","Yr2015")
 write.csv(Issue,"DelayIssue.csv",row.names=FALSE)
 
 Schedule15<-subset(DelayTime,DelayTime$Issue=="Schedule" & DelayTime$Yr=="2015")

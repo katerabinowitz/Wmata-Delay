@@ -154,7 +154,7 @@ myDelay<-cast(myDelayN,Delays.Month~Delays.Yr)
 colnames(myDelay)<-c("Month","Yr2013","Yr2014","Yr2015")
 myDelayT<-myDelay
 myDelayT$date<-ifelse(myDelayT$Month=="January",20150130, 
-            ifelse(myDelayT$Month=="February",20150230,
+            ifelse(myDelayT$Month=="February",20150228,
               ifelse(myDelayT$Month=="March",20150330,
                 ifelse(myDelayT$Month=="April",20150430,
                   ifelse(myDelayT$Month=="May",20150530,

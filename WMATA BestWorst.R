@@ -153,7 +153,7 @@ myDelayN<-count(Delays$Delay, c('Delays$Month','Delays$Yr'))
 myDelay<-cast(myDelayN,Delays.Month~Delays.Yr)
 colnames(myDelay)<-c("Month","Yr2013","Yr2014","Yr2015")
 myDelayT<-myDelay
-myDelayT$M<-ifelse(myDelayT$Month=="January",20150101, 
+myDelayT$date<-ifelse(myDelayT$Month=="January",20150101, 
             ifelse(myDelayT$Month=="February",20150201,
               ifelse(myDelayT$Month=="March",20150301,
                 ifelse(myDelayT$Month=="April",20150401,
@@ -165,7 +165,7 @@ myDelayT$M<-ifelse(myDelayT$Month=="January",20150101,
                             ifelse(myDelayT$Month=="October",20151001,
                               ifelse(myDelayT$Month=="November",20151101,0)))))))))))
 myDelayT<-myDelayT[c(2:5)]
-myDelayT<- myDelayT[order(myDelayT$M),]
+myDelayT<- myDelayT[order(myDelayT$date),]
 write.csv(myDelay,"myDelayN.csv",row.names=FALSE)
 write.csv(myDelayT,"myDelayTN.csv",row.names=FALSE)
 

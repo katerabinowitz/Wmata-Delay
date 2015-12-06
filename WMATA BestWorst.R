@@ -17,6 +17,7 @@ Delays<-cbind(DelayRaw,Date)
 Delays<-subset(Delays,Delays$Incident!="Wednesday November 18, 2014    ")
 Delays$DayType<-ifelse(Delays$Day %in% c("Saturday","Sunday"), "Weekend","Weekday")
 Delays$Month<-gsub( " .*$", "", Delays$MD)
+Delays$DayN<-as.numeric(str_extract(Delays$MD,"[[:digit:]]+"))
 
 Delays$Time<-substr(Delays$Incident,1,10)
 
@@ -26,6 +27,7 @@ Delays$Hour<-ifelse(Delays$Time=="\n5 57 p.m.",5,
                             as.numeric(gsub(":.*$","",Delays$Time)))))
 
 Delays<-subset(Delays,!is.na(Delays$Hour) & !(Delays$Month=="December") & !(Delays$Yr=="2012"))
+Delays<-subset(Delays,!(Delays$Month=='November' & Delays$DayN>24))
 
 Delays$Hour24<-ifelse((grepl("p",Delays$Time) & Delays$Hour==12),Delays$Hour,
                         ifelse(grepl("p",Delays$Time),Delays$Hour+12,Delays$Hour))
@@ -33,7 +35,7 @@ Delays$Hour24<-ifelse((grepl("p",Delays$Time) & Delays$Hour==12),Delays$Hour,
 Delays$TimeGroup<-ifelse(Delays$DayType=="Weekday" & Delays$Hour24 %in% c(6,7,8,9),"Rush",
                           ifelse(Delays$DayType=="Weekday" & Delays$Hour24 %in% c(16,17,18,19),"Rush",
                                   "Off Rush"))
-Delays<-Delays[c(3,5:9,11:12)]
+Delays<-Delays[c(3,5:9,13:14)]
 
 ### Incident Type ###
 #Outcome
@@ -164,17 +166,17 @@ myDelayT$date<-ifelse(myDelayT$Month=="January",as.Date("2015-01-30",format="%Y-
                             ifelse(myDelayT$Month=="October",as.Date("2015-10-30",format="%Y-%m-%d"),
                                    as.Date("2015-11-30",format="%Y-%m-%d")))))))))))
 
-MonthDate<-as.data.frame(c(as.Date("2015-01-30",format="%Y-%m-%d"), 
-             as.Date("2015-02-28",format="%Y-%m-%d"),
-             as.Date("2015-03-30",format="%Y-%m-%d"),
-             as.Date("2015-04-30",format="%Y-%m-%d"),
-             as.Date("2015-05-30",format="%Y-%m-%d"),
-             as.Date("2015-06-30",format="%Y-%m-%d"),
-             as.Date("2015-07-30",format="%Y-%m-%d"),
-             as.Date("2015-08-30",format="%Y-%m-%d"),
-             as.Date("2015-09-30",format="%Y-%m-%d"),
-             as.Date("2015-10-30",format="%Y-%m-%d"),
-             as.Date("2015-11-30",format="%Y-%m-%d")))
+MonthDate<-as.data.frame(c(as.Date("2015-04-01"), 
+             as.Date("2015-08-01"),
+             as.Date("2015-02-01"),
+             as.Date("2015-01-01"),
+             as.Date("2015-07-01"),
+             as.Date("2015-06-01"),
+             as.Date("2015-03-01"),
+             as.Date("2015-05-01"),
+             as.Date("2015-11-01"),
+             as.Date("2015-10-01"),
+             as.Date("2015-9-01")))
 myDelayT<-cbind(myDelay,MonthDate)
 myDelayT<-myDelayT[c(2:5)]
 colnames(myDelayT)<-c("2013","2014","2015","date")
@@ -190,6 +192,7 @@ write.csv(AnnualDelay,"AnnualDelay.csv",row.names=FALSE)
 
 DelayTime<-subset(Delays,!is.na(Delays$Delay))
 count(DelayTime$Delay, c('DelayTime$Yr'))
+
 DelayIssue<-as.data.frame(table(DelayTime$Issue,DelayTime$Yr))
 Issue<-cast(DelayIssue,Var1~Var2)[c(1,3:5)]
 colnames(Issue)<-c("Issue","Yr2013","Yr2014","Yr2015")

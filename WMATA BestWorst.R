@@ -153,17 +153,17 @@ myDelayN<-count(Delays$Delay, c('Delays$Month','Delays$Yr'))
 myDelay<-cast(myDelayN,Delays.Month~Delays.Yr)
 colnames(myDelay)<-c("Month","Yr2013","Yr2014","Yr2015")
 myDelayT<-myDelay
-myDelayT$date<-ifelse(myDelayT$Month=="January","2015-01-30", 
-            ifelse(myDelayT$Month=="February","2015-02-28",
-              ifelse(myDelayT$Month=="March","2015-03-30",
-                ifelse(myDelayT$Month=="April","2015-04-30",
-                  ifelse(myDelayT$Month=="May","2015-05-30",
-                    ifelse(myDelayT$Month=="June","2015-06-30",
-                      ifelse(myDelayT$Month=="July","2015-07-30",
-                        ifelse(myDelayT$Month=="August","2015-08-30",
-                          ifelse(myDelayT$Month=="September","2015-09-30",
-                            ifelse(myDelayT$Month=="October","2015-10-30",
-                              "2015-11-30"))))))))))
+myDelayT$date<-ifelse(myDelayT$Month=="January",as.Date("2015-01-30"), 
+            ifelse(myDelayT$Month=="February",as.Date("2015-02-28"),
+              ifelse(myDelayT$Month=="March",as.Date("2015-03-30"),
+                ifelse(myDelayT$Month=="April",as.Date("2015-04-30"),
+                  ifelse(myDelayT$Month=="May",as.Date("2015-05-30"),
+                    ifelse(myDelayT$Month=="June",as.Date("2015-06-30"),
+                      ifelse(myDelayT$Month=="July",as.Date("2015-07-30"),
+                        ifelse(myDelayT$Month=="August",as.Date("2015-08-30"),
+                          ifelse(myDelayT$Month=="September",as.Date("2015-09-30"),
+                            ifelse(myDelayT$Month=="October",as.Date("2015-10-30"),
+                                   as.Date("2015-11-30")))))))))))
 myDelayT<-myDelayT[c(2:5)]
 myDelayT<- myDelayT[order(myDelayT$date),]
 write.csv(myDelay,"myDelayN.csv",row.names=FALSE)

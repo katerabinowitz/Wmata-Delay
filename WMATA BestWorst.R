@@ -149,6 +149,8 @@ aggregate(Delays$Delay, by=list(Delays$DayType), FUN=mean, na.rm=TRUE)
 count(Delays$Delay, c('Delays$DayType'))
 aggregate(Delays$Delay, by=list(Delays$Day), FUN=mean, na.rm=TRUE)
 count(Delays$Delay, c('Delays$Day'))
+aggregate(Delays$Delay, by=list(Delays$Yr), FUN=mean, na.rm=TRUE)
+count(Delays$Delay, c('Delays$Yr'))
 
 aggregate(Delays$Delay, by=list(Delays$Yr,Delays$Month), FUN=sum, na.rm=TRUE)
 myDelayN<-count(Delays$Delay, c('Delays$Month','Delays$Yr'))

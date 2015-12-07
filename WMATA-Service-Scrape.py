@@ -9,7 +9,7 @@ soup = Soup(response.content)
 wmata = soup.find("ul", {"class": "links2"})
 date_links = ["http://www.wmata.com/rail/service_reports/" + li.a["href"] for li in wmata.findAll("li")]
 
-year_links=date_links[:1100]
+year_links=date_links[:7]
 
 d=pd.DataFrame()
 
@@ -27,6 +27,6 @@ for link in year_links:
 	data=pd.DataFrame({'Date':Date,'Incident':Incidents})
 	d=d.append(data)
 
-d.to_csv('WMATAService.csv')
+d.to_csv('WMATAServiceV2.csv')
 
 # d.to_csv('WMATAService.csv')

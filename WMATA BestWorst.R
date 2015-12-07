@@ -2,9 +2,11 @@ setwd("/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay")
 library(stringr)
 library(plyr)
 library(reshape)
-DelayRaw<-read.csv("/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/WMATAService.csv", 
+DelayRaw1<-read.csv("/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/WMATAService.csv", 
                  stringsAsFactors=FALSE, strip.white=TRUE)
-
+DelayRaw2<-read.csv("/Users/katerabinowitz/Documents/DataLensDC/WMATA-Delay/Wmata-Delay/WMATAServiceV2.csv", 
+                   stringsAsFactors=FALSE, strip.white=TRUE)
+DelayRaw<-rbind(DelayRaw1,DelayRaw2)
 DelayRaw<-subset(DelayRaw,grepl('[a-z]',DelayRaw$Incident) & !(grepl('Report Archives',DelayRaw$Incident)))
 
 ### Dates and Times ###
@@ -27,7 +29,6 @@ Delays$Hour<-ifelse(Delays$Time=="\n5 57 p.m.",5,
                             as.numeric(gsub(":.*$","",Delays$Time)))))
 
 Delays<-subset(Delays,!is.na(Delays$Hour) & !(Delays$Month=="December") & !(Delays$Yr=="2012"))
-Delays<-subset(Delays,!(Delays$Month=='November' & Delays$DayN>24))
 
 Delays$Hour24<-ifelse((grepl("p",Delays$Time) & Delays$Hour==12),Delays$Hour,
                         ifelse(grepl("p",Delays$Time),Delays$Hour+12,Delays$Hour))
@@ -156,18 +157,6 @@ aggregate(Delays$Delay, by=list(Delays$Yr,Delays$Month), FUN=sum, na.rm=TRUE)
 myDelayN<-count(Delays$Delay, c('Delays$Month','Delays$Yr'))
 myDelay<-cast(myDelayN,Delays.Month~Delays.Yr)
 colnames(myDelay)<-c("Month","Yr2013","Yr2014","Yr2015")
-myDelayT$date<-ifelse(myDelayT$Month=="January",as.Date("2015-01-30",format="%Y-%m-%d"), 
-            ifelse(myDelayT$Month=="February",as.Date("2015-02-28",format="%Y-%m-%d"),
-              ifelse(myDelayT$Month=="March",as.Date("2015-03-30",format="%Y-%m-%d"),
-                ifelse(myDelayT$Month=="April",as.Date("2015-04-30",format="%Y-%m-%d"),
-                  ifelse(myDelayT$Month=="May",as.Date("2015-05-30",format="%Y-%m-%d"),
-                    ifelse(myDelayT$Month=="June",as.Date("2015-06-30",format="%Y-%m-%d"),
-                      ifelse(myDelayT$Month=="July",as.Date("2015-07-30",format="%Y-%m-%d"),
-                        ifelse(myDelayT$Month=="August",as.Date("2015-08-30",format="%Y-%m-%d"),
-                          ifelse(myDelayT$Month=="September",as.Date("2015-09-30",format="%Y-%m-%d"),
-                            ifelse(myDelayT$Month=="October",as.Date("2015-10-30",format="%Y-%m-%d"),
-                                   as.Date("2015-11-30",format="%Y-%m-%d")))))))))))
-
 MonthDate<-as.data.frame(c(as.Date("2015-04-01"), 
              as.Date("2015-08-01"),
              as.Date("2015-02-01"),
@@ -189,7 +178,7 @@ write.csv(myDelayT,"myDelayTN.csv",row.names=FALSE)
 AnnualDelay<-aggregate(Delays$Delay, by=list(Delays$Yr), FUN=sum, na.rm=TRUE)
 count(Delays$Delay, c('Delays$Yr'))
 colnames(AnnualDelay)<-c("Year","x")
-AnnualDelay$DelaySum<-AnnualDelay$x/60
+AnnualDelay$DelaySum<-round(AnnualDelay$x/60,0)
 write.csv(AnnualDelay,"AnnualDelay.csv",row.names=FALSE)
 
 DelayTime<-subset(Delays,!is.na(Delays$Delay))

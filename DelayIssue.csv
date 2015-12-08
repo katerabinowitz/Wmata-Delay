@@ -1,9 +1,12 @@
 "Issue","Yr2013","Yr2014","Yr2015"
-"External",201,195,75
-"FireCrime",214,173,351
-"Maintenance",37,56,101
-"Mechnical",2176,2312,2524
-"NA",44,17,3
+"External",210,203,171
+"FireCrime",219,174,350
+"Maintenance",48,59,108
+"Mechnical-General",418,396,441
+"Mechnical-Station",276,282,276
+"Mechnical-Track",65,104,152
+"Mechnical-Train",1440,1542,1658
+"NA",7,5,1
 "Operational",278,439,523
-"Schedule",409,940,1945
-"Trains",5,8,9
+"Schedule Adherence",59,153,207
+"Train did not operate",344,783,1644

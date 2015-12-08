@@ -53,18 +53,25 @@ Delays$Express<-ifelse(grepl("xpress",Delays$Incident),1,0)
 Delays$Reroute<-ifelse(grepl("eroute",Delays$Incident),1,
                        ifelse(grepl("changed to", Delays$Incident),1,0))
 #Issue
+Equip<-subset(Delays,grepl("equipment problem",Delays$Incident))
+
 Delays$Issue<-ifelse(grepl("perational problem",Delays$Incident),"Operational",
-                ifelse((grepl("maintenance",Delays$Incident) | grepl("unscheduled track work",Delays$Incident) | grepl("late",Delays$Incident) |
-                grepl("disabled work unit",Delays$Incident)),"Maintenance",
-                  ifelse((grepl("signal problem",Delays$Incident) | grepl("door problem",Delays$Incident) | grepl("equipment problem",Delays$Incident) | 
-                  grepl("brake problem",Delays$Incident) | grepl("break problem",Delays$Incident)| grepl("track problem",Delays$Incident) | 
-                  grepl("power problem",Delays$Incident) | grepl("switch problem",Delays$Incident) | grepl("mechanical problem",Delays$Incident) |
-                  grepl("escalator",Delays$Incident) | grepl("elevator",Delays$Incident) | grepl("cracked rail",Delays$Incident) | 
-                  grepl("cracked third",Delays$Incident)),"Mechnical",
-                      ifelse((grepl("disabled No",Delays$Incident) | grepl("disabled no",Delays$Incident) | grepl("derail",Delays$Incident)),"Trains",
+                ifelse((grepl("aintenance",Delays$Incident) | grepl("unscheduled track work",Delays$Incident) | grepl("late",Delays$Incident) |
+                grepl("disabled work unit",Delays$Incident) | grepl("ingle tracking",Delays$Incident)),"Maintenance",
+                  ifelse((grepl("signal",Delays$Incident)|grepl("switch problem",Delays$Incident) | 
+                  grepl("escalator",Delays$Incident)|grepl("elevator",Delays$Incident)|grepl("station overrun",Delays$Incident)
+                  |grepl("crowded",Delays$Incident)),"Mechnical-Station",
+                    ifelse((grepl("track problem",Delays$Incident)|grepl("cracked rail",Delays$Incident)|grepl("cracked third",Delays$Incident)
+                    |grepl("insulator",Delays$Incident)|grepl("disabled track equipment",Delays$Incident) | grepl("3rd rail",Delays$Incident)
+                    | grepl("moving track equipment",Delays$Incident)),"Mechnical-Track",
+                    ifelse((grepl("equipment problem",Delays$Incident) | grepl("power problem",Delays$Incident) | 
+                    grepl("mechanical problem",Delays$Incident)),"Mechnical-General",
+                      ifelse((grepl("disabled No",Delays$Incident) | grepl("disabled no",Delays$Incident) | grepl("derail",Delays$Incident) 
+                      | grepl("door problem",Delays$Incident) | grepl("brake problem",Delays$Incident) | grepl("break problem",Delays$Incident) 
+                      | grepl("disabled train",Delays$Incident) | grepl("disabled Green",Delays$Incident)),"Mechnical-Train",
                           ifelse((grepl("fire",Delays$Incident) | grepl("smoke",Delays$Incident) | grepl("police",Delays$Incident) | 
                           grepl("emergency",Delays$Incident) | grepl("MTPD",Delays$Incident) | grepl("burning",Delays$Incident) | 
-                          grepl("smolder",Delays$Incident) | grepl("unattended package",Delays$Incident) | 
+                          grepl("smolder",Delays$Incident) | grepl("unattended package",Delays$Incident) | grepl("unattended bag",Delays$Incident) |
                           grepl("suspicious package",Delays$Incident)),"FireCrime",
                             ifelse((grepl("medical",Delays$Incident) | grepl("sick",Delays$Incident) | grepl("unauthorized person",Delays$Incident) | 
                             grepl("passenger interfering",Delays$Incident) | grepl("deer",Delays$Incident) | grepl("weather",Delays$Incident)| 
@@ -72,9 +79,13 @@ Delays$Issue<-ifelse(grepl("perational problem",Delays$Incident),"Operational",
                             grepl("passenger struck",Delays$Incident) | grepl("obstruction",Delays$Incident) | grepl("customer",Delays$Incident) |
                             grepl("assist a passenger",Delays$Incident) | grepl("assisting a passenger",Delays$Incident) | 
                             grepl("passenger falling",Delays$Incident) | grepl("child",Delays$Incident) | grepl("bird",Delays$Incident) | 
-                            grepl("dog",Delays$Incident)),"External",
-                                ifelse(grepl("did not operate",Delays$Incident) | grepl("schedule",Delays$Incident),"Schedule",
-                                  "NA")))))))
+                            grepl("holding the doors",Delays$Incident)|grepl("dog",Delays$Incident)|grepl("basketball",Delays$Incident)
+                            | grepl("passenger incident",Delays$Incident) | grepl("tree",Delays$Incident)),"External",
+                              ifelse(grepl("id not operate",Delays$Incident),"Train did not operate",
+                                ifelse((grepl("chedule",Delays$Incident) | grepl("eroute",Delays$Incident)),"Schedule Adherence",
+                                "NA"))))))))))                               
+NAN<-subset(Delays,Delays$Issue=="NA")
+sched<-subset(Delays,grepl("schedule adherence",Delays$Incident))
 ###Delay Time###
 Delays$ShortInc<-substr(Delays$Incident,11,1000)
 Delays$ShortInc<-gsub('minute.*','',Delays$ShortInc)
